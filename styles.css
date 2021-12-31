@@ -1,0 +1,20 @@
+body {
+    background-color: rgb(0, 0, 0);
+    color: white;
+}
+
+.container-sm {
+    background-color: rgb(255, 255, 255);
+    color: rgb(47, 92, 129);
+    border-radius: 25px;
+}
+
+.bitcoinh2 {
+    color: rgb(47, 92, 129);
+}
+
+.blacktext {
+    color: black;
+}
+
+
