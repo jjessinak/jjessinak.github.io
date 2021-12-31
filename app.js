@@ -1,5 +1,5 @@
+//Get the current price of bitcoin
 const priceh3 = document.querySelector('#price_now');
-
 const priceRequestURL = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur';
 const priceRequest = new XMLHttpRequest();
 priceRequest.open('GET', priceRequestURL);
@@ -10,18 +10,20 @@ priceRequest.onload = function () {
     updatePrice(price);
 }
 priceRequest.send();
-
+//Updating the price to the page
 function updatePrice(obj) {
     priceh3.innerText = 'Price now: ' + new Intl.NumberFormat('fi-FI', { style: 'currency', currency: 'EUR' }).format(obj['bitcoin']['eur']);
 }
-
+//Variables for page elements
 const startForm = document.querySelector('#start_date');
 const endForm = document.querySelector('#end_date');
 const analyzeButton = document.querySelector('#analyzeButton');
 const resetButton = document.querySelector('#resetButton');
 const bitcoinH2 = document.querySelector('#bitcoinh2');
+//Element which will be removed when user changes the date range
 let divToRemove;
 
+//Calls all the other functions
 const analyzeMarketData = async () => {
     try {
         const allMarketData = await getMarketData();
@@ -40,9 +42,9 @@ const analyzeMarketData = async () => {
     }
 }
 
+//Gets the market data from the API
 const getMarketData = async () => {
     try {
-        //Date to unix time stamp
         const startDate = startForm.elements.start_date_input.value;
         const endDate = endForm.elements.end_date_input.value;
         //Checking if the forms are empty
@@ -50,6 +52,7 @@ const getMarketData = async () => {
             alert('Please, fill in the date range!');
             return;
         }
+        //Date to unix time stamp
         const unixStartDate = Math.floor(new Date(startDate) / 1000);
         const unixEndDate = Math.floor(new Date(endDate) / 1000) + 3600;  //+1 hour, 3600s
 
@@ -60,10 +63,12 @@ const getMarketData = async () => {
     }
 }
 
+//Gets the market data as a parameter and saves each days first after UTC 00:00 data to a new array
 function firstHours(obj) {
     try {
         let firstHoursData = [];
         let startingDate = new Date(obj[0][0]);
+        //Goes through the data set and picks the first data of each day
         for (let i = 0; i < obj.length; i++) {
             if (new Date(obj[i][0]).getUTCDate() === new Date(startingDate).getUTCDate()) {
                 firstHoursData.push(obj[i]);
@@ -78,18 +83,22 @@ function firstHours(obj) {
     }
 }
 
+//Searches for the longest bearish trend within the market data
 function longestBearish(obj) {
     let counter = 0;
     let longestStreak = 0;
+    //Checks if the price on the next day is less than on the current i day
     for (let i = 0; i < obj.length; i++) {
         if (i < obj.length - 1) {
             if (obj[i][1] > obj[i + 1][1]) {
                 counter++;
             }
         }
+        //Update longest streak if needed
         if (counter > longestStreak) {
             longestStreak = counter;
         }
+        //Set counter back to 0 if i+1 day has equal or higher price
         if (i < obj.length - 1) {
             if (obj[i][1] <= obj[i + 1][1]) {
                 counter = 0;
@@ -100,10 +109,11 @@ function longestBearish(obj) {
     return longestStreak;
 }
 
-
+//Finds the date with the highest trading volume
 function tradingVolume(obj) {
     let result = obj[0];
     let highestVolume = obj[0][1];
+    //Checks for the highest volume and returns an array containing the date and volume
     for (let i = 1; i < obj.length; i++) {
         if (obj[i][1] > highestVolume) {
             highestVolume = obj[i][1];
@@ -114,12 +124,15 @@ function tradingVolume(obj) {
     return result;
 }
 
-//For the time machine
+//For the time machine, return an array with boolean should the user buy within this time period, 
+//date for buiyng, date for selling and possible profit
 function profitBitcoin(obj) {
     let shouldBuy;
     let profit = 0;
     let buyDate = obj[0];
     let sellDate = obj[1];
+    //Starts from i=0 date and compares the price difference to th rest of the days.
+    //Then moves to the i=1 and so on to find the biggest profit 
     for (let i = 0; i < obj.length; i++) {
         for (let j = i + 1; j < obj.length; j++) {
             if (obj[j][1] - obj[i][1] > profit) {
@@ -243,7 +256,7 @@ function showBitcoinData(bearish, volume, profit) {
     bigDiv.append(div3);
 }
 
-//Resets the date input forms and changes the states of the buttons
+//Resets the date input forms, changes the states of the buttons and removes the div containing the previous date range overview
 function reset() {
     startForm.reset();
     endForm.reset();
