@@ -1,7 +1,6 @@
 # jjessinak.github.io
 
-# **Vincit Rising Star Pre-assignment**
-Scrooge McDuck's crypto analyzer
+# **Crypto analyzer**
 
 Data source: CoinGecko API V3
 
